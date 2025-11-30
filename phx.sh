@@ -17,7 +17,7 @@ _phx_error() {
 }
 
 phx_list_remote() {
-  local versions_url="https://cdn.jsdelivr.net/gh/NicolasTeles-Dev/phx-binaries/versions.json"
+  local versions_url="https://cdn.jsdelivr.net/gh/NicolasTeles-Dev/phx-binaries@main/versions.json"
   local fallback_url="https://api.github.com/repos/NicolasTeles-Dev/phx-binaries/contents/versions.json"
 
   echo "Fetching available PHP versions from $versions_url..."
@@ -30,10 +30,9 @@ phx_list_remote() {
   }
 
   echo "Available PHP versions (remote):"
-  echo "$json" | jq -r '.versions[] | .version + " (" + .type + ")"' \
+  echo "$json" | jq -r '.versions[] | .version' \
     || _phx_error "Failed to parse remote versions.json."
 }
-
 
 _phx_version_exists() {
     local version="$1"
@@ -66,9 +65,9 @@ phx_install() {
   local install_dir="${PHX_VERSIONS_DIR}/${version}"
 
   # Endpoint CDN
-  local versions_url="https://cdn.jsdelivr.net/gh/NicolasTeles-Dev/phx-binaries/versions.json"
+  local versions_url="https://cdn.jsdelivr.net/gh/NicolasTeles-Dev/phx-binaries@main/versions.json"
   # Fallback API
-  local fallback_url="https://api.github.com/repos/NicolasTeles-Dev/phx-binaries/contents/versions.json"
+  local fallback_url="https://raw.githubusercontent.com/NicolasTeles-Dev/phx-binaries/main/versions.json"
 
   echo "Fetching version metadata from $versions_url..."
   
