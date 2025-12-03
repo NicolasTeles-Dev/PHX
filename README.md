@@ -14,24 +14,36 @@ Gerenciador de versões do PHP simples, rápido e direto ao ponto.
 
 ---
 
-## Instalação (provisória)
-```bash
-git clone https://github.com/NicolasTeles-Dev/PHX phx
-cd phx
-chmod +x phx.sh
-```
-Opcional mover para PATH:
-```bash
-sudo mv phx.sh /usr/local/bin/phx
-```
+## Instalação
 
----
+1.  **Clone o repositório para `~/.phx`**
 
-## Shell Integration
-```bash
-phx init >> ~/.bashrc
-source ~/.bashrc
-```
+    ```bash
+    git clone https://github.com/NicolasTeles-Dev/PHX.git ~/.phx
+    ```
+    Isso garante que todas as versões e configurações do PHP fiquem centralizadas em um único diretório.
+
+2.  **Adicione o `phx` ao seu PATH**
+
+    Crie um link simbólico do script `phx.sh` para um diretório que já esteja no seu `PATH`. `/usr/local/bin` é uma escolha comum:
+    ```bash
+    sudo ln -s ~/.phx/phx.sh /usr/local/bin/phx
+    ```
+    *Dica: Usar um link simbólico permite que você atualize o `phx` facilmente com `git pull` no diretório `~/.phx`.*
+
+3.  **Integre o `phx` ao seu shell**
+
+    Adicione a linha abaixo ao seu arquivo de configuração do shell (ex: `~/.bashrc`, `~/.zshrc`) para habilitar a troca automática de versão do PHP:
+    ```bash
+    eval "$(phx init)"
+    ```
+
+4.  **Reinicie seu shell**
+
+    Para que as alterações entrem em vigor, feche e reabra seu terminal, ou execute:
+    ```bash
+    exec "$SHELL"
+    ```
 
 ---
 
@@ -77,7 +89,7 @@ phx uninstall 8.2.12
 
 ## Estrutura
 ```
-phx/
+~/.phx/
  ├ phx.sh
  ├ current -> versions/8.x.x
  └ versions/

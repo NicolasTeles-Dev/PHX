@@ -301,20 +301,24 @@ phx_uninstall() {
 }
 
 phx_init() {
-  local current_phx_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   cat << 'EOF'
-# PHX shell integration
-export PHX_DIR="$current_phx_dir"
-export PHX_VERSIONS_DIR="$PHX_DIR/versions"
+export PHX_DIR="${HOME}/.phx"
+export PHX_VERSIONS_DIR="${PHX_DIR}/versions"
+
+# Add current version to path
+if [ -d "${PHX_DIR}/current/bin" ]; then
+    export PATH="${PHX_DIR}/current/bin:$PATH"
+fi
 
 phx_auto_use() {
   local local_php_version_file=".php_version"
   if [ -f "$local_php_version_file" ]; then
-    local version=$(cat "$local_php_version_file")
+    local version
+    version=$(cat "$local_php_version_file")
     if [ -d "$PHX_VERSIONS_DIR/$version" ]; then
       local phx_version_bin="$PHX_VERSIONS_DIR/$version/bin"
       # Only change PATH if it's not already pointing to the local version
-      if [[ ":$PATH:" != ":$phx_version_bin:"* ]]; then
+      if [[ ":$PATH:" != *":$phx_version_bin:"* ]]; then
         export PATH="$phx_version_bin:$PATH"
         echo "PHX: Using local PHP $version"
       fi
@@ -323,7 +327,7 @@ phx_auto_use() {
     # If no local .php_version, ensure global current version is in PATH
     local current_symlink_path="$PHX_DIR/current/bin"
     # Only change PATH if it's not already pointing to the global current
-    if [[ ":$PATH:" != ":$current_symlink_path:"* ]]; then
+    if [[ -d "$current_symlink_path" && ":$PATH:" != *":$current_symlink_path:"* ]]; then
       export PATH="$current_symlink_path:$PATH"
       # Only echo if current symlink exists and is readable
       if [ -L "$PHX_DIR/current" ]; then
@@ -333,14 +337,19 @@ phx_auto_use() {
   fi
 }
 
-# Add phx to PATH
-export PATH="$PHX_DIR:$PATH"
-
 # Set up auto-use for Bash
-PROMPT_COMMAND="phx_auto_use;$PROMPT_COMMAND"
+if [[ -n "$BASH_VERSION" ]]; then
+    if [[ -z "$PROMPT_COMMAND" || "$PROMPT_COMMAND" != *"phx_auto_use"* ]]; then
+        PROMPT_COMMAND="phx_auto_use${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
+    fi
+fi
 
 # Set up auto-use for Zsh
-add-zsh-hook chpwd phx_auto_use
+if [[ -n "$ZSH_VERSION" ]]; then
+  if [[ ! " ${precmd_functions[*]} " =~ " phx_auto_use " ]]; then
+    precmd_functions+=("phx_auto_use")
+  fi
+fi
 EOF
 }
 
