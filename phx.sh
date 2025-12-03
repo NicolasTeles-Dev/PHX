@@ -78,17 +78,21 @@ phx_install() {
         || _phx_error "Failed to download versions.json"
   }
 
-  local record
-  record=$(echo "$json" | jq -r --arg v "$version" '.versions[] | select(.version == $v)') ||
-    _phx_error "Failed to parse versions.json"
+  # Extract a single record as compact JSON (prevents multiline output)
+  record=$(echo "$json" \
+      | jq -r --arg v "$version" '.versions[] | select(.version == $v) | @json') \
+      || _phx_error "Failed to parse versions.json"
 
+  # If empty, the version doesn't exist
   if [ -z "$record" ]; then
     _phx_error "Version '$version' not found in versions.json"
   fi
 
-  local download_url
+  # Expand the compact JSON back into a proper object
+  record=$(echo "$record" | jq -r '.')
+
+  # Extract fields safely (guaranteed to be single-line strings)
   download_url=$(echo "$record" | jq -r '.url')
-  local sha256_expected
   sha256_expected=$(echo "$record" | jq -r '.sha256')
 
   local tarball_filename="php-${version}-linux-x64.tar.gz"
