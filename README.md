@@ -16,7 +16,7 @@ Gerenciador de versões do PHP simples, rápido e direto ao ponto.
 
 ## Instalação (provisória)
 ```bash
-git clone https://github.com/NicolasTeles-Dev/phx-binaries.git phx
+git clone https://github.com/NicolasTeles-Dev/PHX phx
 cd phx
 chmod +x phx.sh
 ```
